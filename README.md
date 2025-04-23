@@ -1,2 +1,10 @@
-# ros2_control_demos_ext
-Extended set of demos for ros2_control 
+# Extended Set of Demos for ros2_control
+
+## Content
+
+The following examples are part of this demo repository:
+
+* Example 1: [*AckermannBot*](example_1)
+
+   *AckermannBot* - a simple robot runs in Gazebo simulation with `ros2_control` Ackermann drive controller. This example is to investiagate the idea of using unpownered wheel for odometry calculation when powered wheels slip under certain scenarios. 
+
