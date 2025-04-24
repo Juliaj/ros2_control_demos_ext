@@ -74,7 +74,7 @@ def generate_launch_description():
     )
 
     def robot_state_publisher(context):
-        performed_description_format = LaunchConfiguration('description_format', default='sdf').perform(context)
+        performed_description_format = LaunchConfiguration('description_format').perform(context)
 
         # Create a launch argument for the xacro file   
         xacro_file = LaunchConfiguration('xacro_file', default='test_ackermann_drive').perform(context)
@@ -85,9 +85,9 @@ def generate_launch_description():
                 PathJoinSubstitution([FindExecutable(name='xacro')]),
                 ' ',
                 PathJoinSubstitution([
-                    FindPackageShare('gz_ros2_control_demos'),
-                    performed_description_format,
-                    f'{xacro_file}.xacro.{performed_description_format}'
+                    FindPackageShare('ros2_control_demo_ext_example_1'),
+                    'gazebo',
+                    f'{xacro_file}.xacro.sdf'
                 ]),
                 ' ',
                 'ground_mu:=',
@@ -117,7 +117,7 @@ def generate_launch_description():
 
     robot_controllers = PathJoinSubstitution(
         [
-            FindPackageShare('gz_ros2_control_demos'),
+            FindPackageShare('ros2_control_demo_ext_example_1'),
             'config',
             'ackermann_drive_controller.yaml',
         ]
@@ -184,7 +184,7 @@ def generate_launch_description():
             description='If true, use simulated clock'),
         DeclareLaunchArgument(
             'description_format',
-            default_value='urdf',
+            default_value='sdf',
             description='Robot description format to use, urdf or sdf'),
     ] + declared_arguments)
     ld.add_action(OpaqueFunction(function=robot_state_publisher))
