@@ -60,7 +60,7 @@ install (
 )
 
 install(
-  DIRECTORY description/gazebo description/launch description/ros2_control description/urdf
+  DIRECTORY description/gazebo description/launch description/ros2_control description/urdf worlds
   DESTINATION share/${PROJECT_NAME}
 )
 

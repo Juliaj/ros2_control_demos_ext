@@ -18,7 +18,8 @@ from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
-
+from ament_index_python.packages import get_package_share_directory
+import os
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -27,51 +28,7 @@ def generate_launch_description():
     # Launch Arguments
     use_sim_time = LaunchConfiguration('use_sim_time', default=True)
 
-    # Declare arguments
     declared_arguments = []
-
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'use_slam',
-            default_value='false',
-            description='Whether to use SLAM')
-    )
-
-    # Add ground plane parameters
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'ground_mu',
-            default_value='0.01',
-            description='Ground plane primary friction coefficient')
-    )
-    
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'ground_mu2',
-            default_value='0.01',
-            description='Ground plane secondary friction coefficient')
-    )
-    
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'ground_slip1',
-            default_value='1.0',
-            description='Ground plane slip1 value')
-    )
-    
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'ground_slip2',
-            default_value='1.0',
-            description='Ground plane slip2 value')
-    )
-    
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'ground_size',
-            default_value='200',
-            description='Ground plane size')
-    )
 
     def robot_state_publisher(context):
         performed_description_format = LaunchConfiguration('description_format').perform(context)
@@ -89,21 +46,6 @@ def generate_launch_description():
                     'gazebo',
                     f'{xacro_file}.xacro.sdf'
                 ]),
-                ' ',
-                'ground_mu:=',
-                LaunchConfiguration('ground_mu', default='0.01'),
-                ' ',
-                'ground_mu2:=',
-                LaunchConfiguration('ground_mu2', default='0.01'),
-                ' ',
-                'ground_slip1:=',
-                LaunchConfiguration('ground_slip1', default='1.0'),
-                ' ',
-                'ground_slip2:=',
-                LaunchConfiguration('ground_slip2', default='1.0'),
-                ' ',
-                'ground_size:=',
-                LaunchConfiguration('ground_size', default='200'),
             ]
         )
         robot_description = {'robot_description': robot_description_content}
@@ -147,6 +89,10 @@ def generate_launch_description():
                    ],
     )
 
+    # TODO: change to slippery_world.sdf
+    # world  os.path.join(get_package_share_directory('ros2_control_demo_ext_example_1'), 'worlds', 'slippery_world.sdf')
+    world = "empty.sdf"
+    
     # Bridge
     bridge = Node(
         package='ros_gz_bridge',
@@ -154,6 +100,7 @@ def generate_launch_description():
         arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
         output='screen'
     )
+
 
     ld = LaunchDescription([
         bridge,
@@ -163,7 +110,8 @@ def generate_launch_description():
                 [PathJoinSubstitution([FindPackageShare('ros_gz_sim'),
                                        'launch',
                                        'gz_sim.launch.py'])]),
-            launch_arguments=[('gz_args', [' -r -v 1 empty.sdf'])]),
+            launch_arguments=[('gz_args', [f' -r -v 1 {world}'])]
+        ),
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=gz_spawn_entity,
@@ -188,4 +136,5 @@ def generate_launch_description():
             description='Robot description format to use, urdf or sdf'),
     ] + declared_arguments)
     ld.add_action(OpaqueFunction(function=robot_state_publisher))
+  
     return ld

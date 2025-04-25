@@ -156,9 +156,9 @@ class SlipDetector:
             
         self.slip_ratio = self.wheel_traveled_distance / odometry_distance
         
-        if self.slip_ratio > 0.9:
+        if self.slip_ratio > 1.1:
             self.logger.info(
-                f"Wheel spin slip detected! Ratio: {self.slip_ratio:.2f} "
+                f"Wheel spin slip detected! Ratio: {self.slip_ratio:.3f} "
                 f"(wheels moved {self.wheel_traveled_distance:.2f}m, "
                 f"robot moved {odometry_distance:.2f}m)"
             )
@@ -187,7 +187,7 @@ class AckermannBotDemoTest(Node):
     '''
     This class is used to test the ackermann bot demo, get odometry and joint states and detect slip.
     '''
-    def __init__(self, run_duration=120.0):
+    def __init__(self, run_duration=600.0):
         super().__init__("ackermannbot_demo_helper_node")
         self.is_moving = False
         self.start_time = None
@@ -308,7 +308,7 @@ class AckermannBotDemoTest(Node):
         self.stop_robot()
         return response
 
-    def start_timed_run(self, duration=120.0):
+    def start_timed_run(self, duration=600.0):
         """Start a timed run for the specified duration in seconds"""
         self.run_duration = duration
         self.start_time = self.get_clock().now()
