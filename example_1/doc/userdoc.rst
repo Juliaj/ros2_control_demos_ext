@@ -36,36 +36,43 @@ Note:
 In Gazebo's ODE physics engine, `slip1` and `mu` serve different but related purposes in friction modeling:
 
 1. **mu (μ) - Friction Coefficient**  
-   ```xml
-   <ode>
-     <mu>1.0</mu>       <!-- Primary friction coefficient -->
-     <mu2>1.0</mu2>     <!-- Secondary friction coefficient -->
-   </ode>
-   ```
+
+   .. code-block:: xml
+
+    <ode>
+        <mu>1.0</mu>       <!-- Primary friction coefficient -->
+        <mu2>1.0</mu2>     <!-- Secondary friction coefficient -->
+    </ode>
+   
+
    - Determines the "grip" between surfaces
    - Higher μ = more friction/resistance to sliding
    - Typical range: 0.0 (ice) to 1.5 (rubber on concrete)
    - Governs the maximum friction force before sliding occurs
 
 2. **slip1/slip2 - Slip Coefficients**  
-   ```xml
-   <ode>
-     <slip1>0.5</slip1>  <!-- Longitudinal slip -->
-     <slip2>0.5</slip2>  <!-- Lateral slip -->
-   </ode>
-   ```
-   - Control how much sliding occurs AFTER friction is overcome
-   - Higher values = more slippage during motion
-   - Range: 0.0 (no slip) to 1.0 (full slip)
+
+   .. code-block:: xml
+
+    <ode>
+        <slip1>0.5</slip1>  <!-- Longitudinal slip -->
+        <slip2>0.5</slip2>  <!-- Lateral slip -->
+    </ode>
+   
+   * Control how much sliding occurs AFTER friction is overcome
+   * Higher values = more slippage during motion
+   * Range: 0.0 (no slip) to 1.0 (full slip)
 
 **Key relationship**:  
+
 `mu` determines IF slipping occurs, while `slip1/slip2` determine HOW MUCH slipping occurs once in motion. They work together to model:  
+
 1. Static friction (mu prevents initial movement)  
 2. Dynamic friction (slip parameters control motion once moving)
 
 For high slipperiness,we choose the following values:
-- μ=0.1-0.3 (ice, oil spills)
-- μ=0.3-0.5 (wet roads, loose gravel)
+* μ=0.1-0.3 (ice, oil spills)
+* μ=0.3-0.5 (wet roads, loose gravel)
 
 
 Run the demo
@@ -94,17 +101,38 @@ Results
 Run 1: 
 
 Configuration:
-```xml
-<ode>
-  <mu>0.2</mu>
-  <slip1>0.8</slip1>
-  <slip2>0.9</slip2>
-</ode>
-```
-Observation:
-- The slipping is significant and the movement in Gazebo doesn't match the odometry info from the plotjuggler.
 
-Video:
-.. image:: ../images/slip_test_1.gif
+.. code-block:: xml
+
+   <ode>
+      <mu>0.2</mu>
+      <slip1>0.8</slip1>
+      <slip2>0.9</slip2>
+   </ode>
+
+Observation:
+
+* The slipping is significant and the movement in Gazebo doesn't match the odometry info from the plotjuggler. See [Video](images/slip_test_1.gif).
+
+Open questions:
+
+Is the current valid since we control the bot with velocity interfaces ?
+The comments from `ros-controls/ros2_control_demos#786 <https://github.com/ros-controls/ros2_control_demos/pull/786>`_ call out the limitations of using velocity interfaces regarding the physical accuracy of the simulation. 
+
+To summarize:
+
+* Velocity-controlled objects move instantly to commanded speeds regardless of mass or inertia, violating Newton's laws where acceleration should depend on mass (F=ma)
+* Momentum is ignored - objects can stop instantly with no deceleration period, which is physically impossible
+* Inertial effects disappear - heavy and light objects respond identically to velocity commands
+* Collisions behave unrealistically - velocity-controlled objects may continue through obstacles or respond incorrectly
+
+With effort interfaces, it may, 
+
+* Allow physics engine to calculate resulting motion naturally
+* Respect mass and inertia during acceleration
+* Preserve momentum (objects continue moving after force stops)
+* Provide realistic collision dynamics
+* Better match real robot behavior where motors produce torque, not direct velocity
+
 
 
