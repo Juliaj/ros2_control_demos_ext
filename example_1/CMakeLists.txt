@@ -60,11 +60,6 @@ install (
 )
 
 install(
-  DIRECTORY description/gazebo description/launch description/ros2_control description/urdf worlds
-  DESTINATION share/${PROJECT_NAME}
-)
-
-install(
   DIRECTORY bringup/config bringup/launch
   DESTINATION share/${PROJECT_NAME}
 )
